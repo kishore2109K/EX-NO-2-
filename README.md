@@ -164,3 +164,6 @@ int main() {
 
 
 Output:
+
+![image](https://github.com/user-attachments/assets/8cfeb570-018b-4d82-8645-0f5f51b2eed7)
+
