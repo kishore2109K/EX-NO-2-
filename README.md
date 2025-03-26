@@ -1,12 +1,10 @@
 ## EX. NO:2 IMPLEMENTATION OF PLAYFAIR CIPHER
-
+## NAME : KISHORE K
+## REG N0 : 212223040101
  
 
 ## AIM:
  
-
- 
-
 To write a C program to implement the Playfair Substitution technique.
 
 ## DESCRIPTION:
@@ -35,8 +33,133 @@ STEP-5: Display the obtained cipher text.
 
 
 Program:
+```
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 
+#define SIZE 5
 
+char keyTable[SIZE][SIZE];
+int exists[26] = {0};
+
+void toUpperCase(char *str) {
+    for (int i = 0; str[i]; i++) {
+        str[i] = toupper(str[i]);
+    }
+}
+
+void removeSpaces(char *str) {
+    int count = 0;
+    for (int i = 0; str[i]; i++) {
+        if (str[i] != ' ') {
+            str[count++] = str[i];
+        }
+    }
+    str[count] = '\0';
+}
+
+void generateKeyTable(char *key) {
+    memset(exists, 0, sizeof(exists));
+    int k = 0;
+    toUpperCase(key);
+    removeSpaces(key);
+    
+    for (int i = 0; key[i]; i++) {
+        if (key[i] == 'J') key[i] = 'I';
+        if (!exists[key[i] - 'A']) {
+            keyTable[k / SIZE][k % SIZE] = key[i];
+            exists[key[i] - 'A'] = 1;
+            k++;
+        }
+    }
+    
+    for (char ch = 'A'; ch <= 'Z'; ch++) {
+        if (ch == 'J') continue;
+        if (!exists[ch - 'A']) {
+            keyTable[k / SIZE][k % SIZE] = ch;
+            exists[ch - 'A'] = 1;
+            k++;
+        }
+    }
+}
+
+void findPosition(char ch, int *row, int *col) {
+    if (ch == 'J') ch = 'I';
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            if (keyTable[i][j] == ch) {
+                *row = i;
+                *col = j;
+                return;
+            }
+        }
+    }
+}
+
+void encrypt(char *text, char *cipher) {
+    toUpperCase(text);
+    removeSpaces(text);
+    
+    int len = strlen(text);
+    for (int i = 0; i < len; i += 2) {
+        if (i + 1 == len || text[i] == text[i + 1]) {
+            for (int j = len; j > i + 1; j--) {
+                text[j] = text[j - 1];
+            }
+            text[i + 1] = 'X';
+            len++;
+        }
+    }
+    
+    text[len] = '\0';
+    int row1, col1, row2, col2;
+    for (int i = 0; i < len; i += 2) {
+        findPosition(text[i], &row1, &col1);
+        findPosition(text[i + 1], &row2, &col2);
+        
+        if (row1 == row2) {
+            cipher[i] = keyTable[row1][(col1 + 1) % SIZE];
+            cipher[i + 1] = keyTable[row2][(col2 + 1) % SIZE];
+        } else if (col1 == col2) {
+            cipher[i] = keyTable[(row1 + 1) % SIZE][col1];
+            cipher[i + 1] = keyTable[(row2 + 1) % SIZE][col2];
+        } else {
+            cipher[i] = keyTable[row1][col2];
+            cipher[i + 1] = keyTable[row2][col1];
+        }
+    }
+    cipher[len] = '\0';
+}
+
+void printKeyTable() {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            printf("%c ", keyTable[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+int main() {
+    char key[100], text[100], cipher[100];
+    
+    printf("Enter key: ");
+    gets(key);
+    generateKeyTable(key);
+    
+    printf("\nPlayfair Cipher Key Table:\n");
+    printKeyTable();
+    
+    printf("\nEnter plaintext: ");
+    gets(text);
+    
+    encrypt(text, cipher);
+    
+    printf("\nCiphertext: %s\n", cipher);
+    return 0;
+}
+```
 
 
 
